@@ -1,6 +1,8 @@
 package com.project.BookingClone.service.Impl;
 
 import com.project.BookingClone.dto.HotelDto;
+import com.project.BookingClone.dto.HotelInfoDto;
+import com.project.BookingClone.dto.RoomDto;
 import com.project.BookingClone.entity.Hotel;
 import com.project.BookingClone.entity.Room;
 import com.project.BookingClone.exception.ResourceNotFoundException;
@@ -13,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -84,6 +88,20 @@ public class HotelServiceImpl implements HotelService {
         for(Room room: hotel.getRooms()) {
             inventoryService.initializeRoomForAYear(room);
         }
+    }
+
+    @Override
+    public HotelInfoDto getHotelInfoById(Long hotelId) {
+        Hotel hotel = hotelRepository
+                .findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: "+hotelId));
+
+        List<RoomDto> rooms = hotel.getRooms()
+                .stream()
+                .map((element) -> modelMapper.map(element, RoomDto.class))
+                .toList();
+
+        return new HotelInfoDto(modelMapper.map(hotel, HotelDto.class), rooms);
     }
 
 

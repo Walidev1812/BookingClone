@@ -21,3 +21,12 @@ server:
 
 jwt:
   secretKey: fpbergipervit4340g80rb8ehbh304ghsdlkverognebbns
+
+frontend:
+  url: http://localhost:7070
+
+stripe:
+  webhook:
+    secret: whsec_3456f052e7e0eb29caf088e905a282543df3bd8563a4ad689553dc3a635cd2b9
+  secret:
+    key: sk_test_51SoLglCHnm6iDOHg5cs3fhqoIoBws0KkFBqycOnq8lCd1RJW54iSLDvmgERXG9IYILiVfYWuOnmdS2BBr3AYwk5X00tPoqNeb3

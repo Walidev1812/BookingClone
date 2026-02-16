@@ -2,6 +2,7 @@ package com.project.BookingClone.controller;
 
 
 import com.project.BookingClone.dto.BookingDto;
+import com.project.BookingClone.dto.BookingPaymentInitResponseDto;
 import com.project.BookingClone.dto.BookingRequest;
 import com.project.BookingClone.dto.GuestDto;
 import com.project.BookingClone.service.BookingService;
@@ -28,6 +29,18 @@ public class HotelBookingController {
     public ResponseEntity<BookingDto> addGuests(@PathVariable Long bookingId,
                                                 @RequestBody List<GuestDto> guestDtoList) {
         return ResponseEntity.ok(bookingService.addGuests(bookingId, guestDtoList));
+    }
+
+    @PostMapping("/{bookingId}/payments")
+    public ResponseEntity<BookingPaymentInitResponseDto> initiatePayment(@PathVariable Long bookingId) {
+        String sessionUrl = bookingService.initiatePayments(bookingId);
+        return ResponseEntity.ok(new BookingPaymentInitResponseDto(sessionUrl));
+    }
+
+    @PostMapping("/{bookingId}/cancel")
+    public ResponseEntity<Void> cancelBooking(@PathVariable Long bookingId) {
+        bookingService.cancelBooking(bookingId);
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -1,4 +1,4 @@
-package com.project.BookingClone.service;
+package com.project.BookingClone.service.Impl;
 
 import com.project.BookingClone.entity.Hotel;
 import com.project.BookingClone.entity.HotelMinPrice;

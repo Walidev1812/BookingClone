@@ -18,3 +18,6 @@ server:
   port: 7070
   servlet:
     context-path: /api/v1
+
+jwt:
+  secretKey: fpbergipervit4340g80rb8ehbh304ghsdlkverognebbns

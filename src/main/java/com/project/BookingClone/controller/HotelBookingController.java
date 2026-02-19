@@ -1,10 +1,7 @@
 package com.project.BookingClone.controller;
 
 
-import com.project.BookingClone.dto.BookingDto;
-import com.project.BookingClone.dto.BookingPaymentInitResponseDto;
-import com.project.BookingClone.dto.BookingRequest;
-import com.project.BookingClone.dto.GuestDto;
+import com.project.BookingClone.dto.*;
 import com.project.BookingClone.service.BookingService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +39,8 @@ public class HotelBookingController {
         bookingService.cancelBooking(bookingId);
         return ResponseEntity.noContent().build();
     }
-
+    @GetMapping("/{bookingId}/status")
+    public ResponseEntity<BookingStatusResponseDto> getBookingStatus(@PathVariable Long bookingId) {
+        return ResponseEntity.ok(new BookingStatusResponseDto(bookingService.getBookingStatus(bookingId)));
+    }
 }

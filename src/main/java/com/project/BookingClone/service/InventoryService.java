@@ -1,11 +1,11 @@
 package com.project.BookingClone.service;
 
 
-import com.project.BookingClone.dto.HotelDto;
-import com.project.BookingClone.dto.HotelPriceDto;
-import com.project.BookingClone.dto.HotelSearchRequest;
+import com.project.BookingClone.dto.*;
 import com.project.BookingClone.entity.Room;
 import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 public interface InventoryService {
 
@@ -13,6 +13,10 @@ public interface InventoryService {
 
     void deleteAllInventories(Room room);
 
-    Page<HotelPriceDto> searchHotels(HotelSearchRequest hotelSearchRequest);
+    Page<HotelPriceResponseDto> searchHotels(HotelSearchRequest hotelSearchRequest);
+
+    List<InventoryDto> getAllInventoryByRoom(Long roomId);
+
+    void updateInventory(Long roomId, UpdateInventoryRequestDto updateInventoryRequestDto);
 
 }

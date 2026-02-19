@@ -1,10 +1,7 @@
 package com.project.BookingClone.controller;
 
 
-import com.project.BookingClone.dto.HotelDto;
-import com.project.BookingClone.dto.HotelInfoDto;
-import com.project.BookingClone.dto.HotelPriceDto;
-import com.project.BookingClone.dto.HotelSearchRequest;
+import com.project.BookingClone.dto.*;
 import com.project.BookingClone.service.HotelService;
 import com.project.BookingClone.service.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +19,9 @@ public class HotelBrowseController {
     private final HotelService hotelService;
 
     @GetMapping("/search")
-    public ResponseEntity<Page<HotelPriceDto>> searchHotels(@RequestBody HotelSearchRequest hotelSearchRequest) {
+    public ResponseEntity<Page<HotelPriceResponseDto>> searchHotels(@RequestBody HotelSearchRequest hotelSearchRequest) {
 
-        Page<HotelPriceDto> page = inventoryService.searchHotels(hotelSearchRequest);
+        Page<HotelPriceResponseDto> page = inventoryService.searchHotels(hotelSearchRequest);
         return ResponseEntity.ok(page);
     }
 

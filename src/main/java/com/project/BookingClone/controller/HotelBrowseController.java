@@ -4,6 +4,7 @@ package com.project.BookingClone.controller;
 import com.project.BookingClone.dto.*;
 import com.project.BookingClone.service.HotelService;
 import com.project.BookingClone.service.InventoryService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class HotelBrowseController {
     private final HotelService hotelService;
 
     @GetMapping("/search")
+    @Operation(summary = "Search hotels", tags = {"Browse Hotels"})
     public ResponseEntity<Page<HotelPriceResponseDto>> searchHotels(@RequestBody HotelSearchRequest hotelSearchRequest) {
 
         Page<HotelPriceResponseDto> page = inventoryService.searchHotels(hotelSearchRequest);
@@ -26,6 +28,7 @@ public class HotelBrowseController {
     }
 
     @GetMapping("/{hotelId}/info")
+    @Operation(summary = "Get a hotel info by hotelId", tags = {"Browse Hotels"})
     public ResponseEntity<HotelInfoDto> getHotelInfo(@PathVariable Long hotelId) {
         return ResponseEntity.ok(hotelService.getHotelInfoById(hotelId));
     }

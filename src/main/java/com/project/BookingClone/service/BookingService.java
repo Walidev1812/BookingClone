@@ -5,6 +5,7 @@ import com.project.BookingClone.dto.BookingRequest;
 import com.project.BookingClone.dto.GuestDto;
 import com.project.BookingClone.dto.HotelReportDto;
 import com.project.BookingClone.entity.enums.BookingStatus;
+import com.stripe.exception.EventDataObjectDeserializationException;
 import com.stripe.model.Event;
 
 import java.time.LocalDate;
@@ -16,7 +17,7 @@ public interface BookingService {
 
     BookingDto addGuests(Long bookingId, List<GuestDto> guestDtoList);
 
-    void capturePayment(Event event);
+    void capturePayment(Event event) throws EventDataObjectDeserializationException;
 
     String initiatePayments(Long bookingId);
 

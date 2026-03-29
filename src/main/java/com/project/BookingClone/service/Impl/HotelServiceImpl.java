@@ -12,9 +12,14 @@ import com.project.BookingClone.repository.HotelRepository;
 import com.project.BookingClone.repository.RoomRepository;
 import com.project.BookingClone.service.HotelService;
 import com.project.BookingClone.service.InventoryService;
+import com.project.BookingClone.util.CacheKeyGenerator;
+//import jakarta.persistence.Cacheable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +38,7 @@ public class HotelServiceImpl implements HotelService {
     private final ModelMapper modelMapper;
     private final InventoryService inventoryService;
     private final RoomRepository roomRepository;
+    private final CacheKeyGenerator keyGen;
 
     @Override
     public HotelDto createNewHotel(HotelDto hotelDto) {
@@ -49,6 +55,7 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
+    @Cacheable(value = "hotelInfo", key = "@cacheKeyGenerator.forHotel(#hotelId)")
     public HotelDto getHotelById(Long id) {
         log.info("Getting the hotel with ID: {}", id);
         Hotel hotel = hotelRepository
@@ -64,6 +71,7 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
+    @CachePut(value = "hotelInfo", key = "@cacheKeyGenerator.forHotel(#hotelId)")
     public HotelDto updateHotelById(Long id, HotelDto hotelDto) {
         log.info("Updating the hotel with ID: {}", id);
         Hotel hotel = hotelRepository
@@ -82,6 +90,7 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "hotelInfo", key = "@cacheKeyGenerator.forHotel(#hotelId)")
     public void deleteHotelById(Long id) {
         Hotel hotel = hotelRepository
                 .findById(id)
@@ -102,6 +111,7 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     @Transactional
+    @CachePut(value = "hotelInfo", key = "@cacheKeyGenerator.forHotel(#hotelId)")
     public void activateHotel(Long hotelId) {
         log.info("Activating the hotel with ID: {}", hotelId);
         Hotel hotel = hotelRepository
@@ -123,6 +133,7 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
+    @Cacheable(value = "hotelInfo", key = "@cacheKeyGenerator.forHotel(#hotelId)")
     public HotelInfoDto getHotelInfoById(Long hotelId) {
         Hotel hotel = hotelRepository
                 .findById(hotelId)

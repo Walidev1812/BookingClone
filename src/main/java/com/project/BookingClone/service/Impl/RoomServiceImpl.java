@@ -14,6 +14,10 @@ import com.project.BookingClone.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +38,10 @@ public class RoomServiceImpl implements RoomService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "hotelRooms", key = "#hotelId"),
+            @CacheEvict(value = "hotelInfo", key = "#hotelId")
+    })
     public RoomDto createNewRoom(Long hotelId, RoomDto roomDto) {
         log.info("Creating a new room in hotel with ID: {}", hotelId);
         Hotel hotel = hotelRepository
@@ -54,6 +62,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Cacheable(value = "hotelRooms", key = "#hotelId")
     public List<RoomDto> getAllRoomsInHotel(Long hotelId) {
         log.info("Getting all rooms in hotel with ID: {}", hotelId);
         Hotel hotel = hotelRepository
@@ -72,6 +81,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Cacheable(value = "room", key = "#roomId")
     public RoomDto getRoomById(Long roomId) {
         log.info("Getting the room with ID: {}", roomId);
         Room room = roomRepository
@@ -83,6 +93,11 @@ public class RoomServiceImpl implements RoomService {
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "room", key = "#roomId"),
+            @CacheEvict(value = "hotelRooms", key = "#result.hotel.id"),
+            @CacheEvict(value = "hotelInfo", key = "#result.hotel.id")
+    })
     public void deleteRoomById(Long roomId) {
         log.info("Deleting the room with ID: {}", roomId);
         Room room = roomRepository
@@ -98,6 +113,11 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @CachePut(value = "room", key = "#roomId")
+    @Caching(evict = {
+            @CacheEvict(value = "hotelRooms", key = "#hotelId"),
+            @CacheEvict(value = "hotelInfo", key = "#hotelId")
+    })
     public RoomDto updateRoomById(Long hotelId, Long roomId, RoomDto roomDto) {
         log.info("Updating the room with ID: {}", roomId);
         Hotel hotel = hotelRepository

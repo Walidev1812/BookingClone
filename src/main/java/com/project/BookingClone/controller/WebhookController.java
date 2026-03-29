@@ -1,6 +1,7 @@
 package com.project.BookingClone.controller;
 
 import com.project.BookingClone.service.BookingService;
+import com.stripe.exception.EventDataObjectDeserializationException;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.net.Webhook;
@@ -28,7 +29,7 @@ public class WebhookController {
             Event event = Webhook.constructEvent(payload, sigHeader, endpointSecret);
             bookingService.capturePayment(event);
             return ResponseEntity.noContent().build();
-        } catch (SignatureVerificationException e) {
+        } catch (SignatureVerificationException | EventDataObjectDeserializationException e) {
             throw new RuntimeException(e);
         }
     }

@@ -10,6 +10,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public class GuestServiceImpl implements GuestService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Cacheable(value = "guestList", key = "@appUtils.getCurrentUser().getId()")
     public List<GuestDto> getAllGuests() {
         User user = getCurrentUser();
         log.info("Fetching all guests of user with id: {}", user.getId());
@@ -37,6 +40,7 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
+    @CacheEvict(value = "guestList", key = "@appUtils.getCurrentUser().getId()")
     public GuestDto addNewGuest(GuestDto guestDto) {
         log.info("Adding new guest: {}", guestDto);
         User user = getCurrentUser();
@@ -48,6 +52,7 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
+    @CacheEvict(value = "guestList", key = "@appUtils.getCurrentUser().getId()")
     public void updateGuest(Long guestId, GuestDto guestDto) {
         log.info("Updating guest with ID: {}", guestId);
         Guest guest = guestRepository.findById(guestId)
@@ -65,6 +70,7 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
+    @CacheEvict(value = "guestList", key = "@appUtils.getCurrentUser().getId()")
     public void deleteGuest(Long guestId) {
         log.info("Deleting guest with ID: {}", guestId);
         Guest guest = guestRepository.findById(guestId)

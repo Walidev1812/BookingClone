@@ -13,9 +13,12 @@ import com.project.BookingClone.repository.*;
 import com.project.BookingClone.service.BookingService;
 import com.project.BookingClone.service.CheckoutService;
 import com.project.BookingClone.strategy.PricingService;
+import com.stripe.exception.EventDataObjectDeserializationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
+import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.Refund;
+import com.stripe.model.StripeObject;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.RefundCreateParams;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +29,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+//import com.google.gson.JsonObject;
+//import com.stripe.net.ApiResource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -34,6 +38,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -134,11 +140,19 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void capturePayment(Event event) {
-        if ("checkout.session.completed".equals(event.getType())) {
-            Session session = (Session) event.getDataObjectDeserializer().getObject().orElse(null);
-            if (session == null) return;
+    public void capturePayment(Event event) throws EventDataObjectDeserializationException {
 
+        if (!"checkout.session.completed".equals(event.getType()))
+        {
+            return;
+        }
+            
+           Session session = (Session)event.getDataObjectDeserializer().deserializeUnsafe();
+
+            if(session==null)
+            {
+                throw new RuntimeException("failed to deserialize session from event");
+            }
             String sessionId = session.getId();
             Booking booking =
                     bookingRepository.findByPaymentSessionId(sessionId).orElseThrow(() ->
@@ -147,16 +161,18 @@ public class BookingServiceImpl implements BookingService {
             booking.setBookingStatus(BookingStatus.CONFIRMED);
             bookingRepository.save(booking);
 
-            inventoryRepository.findAndLockReservedInventory(booking.getRoom().getId(), booking.getCheckInDate(),
-                    booking.getCheckOutDate(), booking.getRoomsCount());
+                inventoryRepository.findAndLockReservedInventory(booking.getRoom().getId(), booking.getCheckInDate(),
+                        booking.getCheckOutDate(), booking.getRoomsCount());
 
-            inventoryRepository.confirmBooking(booking.getRoom().getId(), booking.getCheckInDate(),
-                    booking.getCheckOutDate(), booking.getRoomsCount());
+                inventoryRepository.confirmBooking(booking.getRoom().getId(), booking.getCheckInDate(),
+                        booking.getCheckOutDate(), booking.getRoomsCount());
 
-            log.info("Successfully confirmed the booking for Booking ID: {}", booking.getId());
-        } else {
+                log.info("Successfully confirmed the booking for Booking ID: {}", booking.getId());
+
+
+      /*  else {
             log.warn("Unhandled event type: {}", event.getType());
-        }
+        }*/
 
     }
 
@@ -287,8 +303,27 @@ public class BookingServiceImpl implements BookingService {
         User user = getCurrentUser();
 
         return bookingRepository.findByUser(user)
-                .stream().
-                map((element) -> modelMapper.map(element, BookingDto.class))
+                .stream()
+                //.map((element) -> modelMapper.map(element, BookingDto.class))
+                .map(element -> {
+                    BookingDto dto = new BookingDto();
+                    dto.setId(element.getId());
+                    dto.setRoomsCount(element.getRoomsCount());
+                    dto.setCheckInDate(element.getCheckInDate());
+                    dto.setCheckOutDate(element.getCheckOutDate());
+                    dto.setCreatedAt(element.getCreatedAt());
+                    dto.setUpdatedAt(element.getUpdatedAt());
+                    dto.setBookingStatus(element.getBookingStatus());
+
+                    Set<GuestDto> guestDtos = element.getGuests()
+                            .stream()
+                            .map(g -> modelMapper.map(g, GuestDto.class))
+                            .collect(Collectors.toSet());
+
+                    dto.setGuests(guestDtos);
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
     }

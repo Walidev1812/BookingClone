@@ -11,6 +11,7 @@ import com.project.BookingClone.repository.HotelMinPriceRepository;
 import com.project.BookingClone.repository.InventoryRepository;
 import com.project.BookingClone.repository.RoomRepository;
 import com.project.BookingClone.service.InventoryService;
+import jakarta.persistence.Cacheable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +69,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
+
     public Page<HotelPriceResponseDto> searchHotels(HotelSearchRequest hotelSearchRequest) {
         log.info("Searching hotels for {} city, from {} to {}", hotelSearchRequest.getCity(), hotelSearchRequest.getStartDate(), hotelSearchRequest.getEndDate());
         Pageable pageable = PageRequest.of(hotelSearchRequest.getPage(), hotelSearchRequest.getSize());
@@ -107,7 +109,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public void updateInventory(Long roomId, UpdateInventoryRequestDto updateInventoryRequestDto) {
-        log.info("Updating All inventory by room for room with id: {} between date range: {} - {}", roomId,
+        log.info("Updating ll inventory by room for room with id: {} between date range: {} - {}", roomId,
                 updateInventoryRequestDto.getStartDate(), updateInventoryRequestDto.getEndDate());
 
         Room room = roomRepository.findById(roomId)
